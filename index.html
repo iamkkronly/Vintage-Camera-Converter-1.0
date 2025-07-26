@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vintage Camera Image Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #3a1c1c 0%, #1a1a1a 100%);
+            color: #e0c097;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(40, 25, 15, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #6d4c3d;
+            margin-top: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #6d4c3d;
+            padding-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            color: #e0c097;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: #c9a87d;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .upload-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(30, 20, 12, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #6d4c3d;
+        }
+        
+        .preview-section {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #d4b483;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .upload-area {
+            border: 3px dashed #6d4c3d;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(45, 30, 20, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover {
+            background: rgba(60, 40, 25, 0.7);
+            border-color: #d4b483;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #d4b483;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-weight: bold;
+            color: #d4b483;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 12px;
+            border-radius: 5px;
+            background: #3a1c1c;
+            outline: none;
+            border: 1px solid #6d4c3d;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #d4b483;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #6d4c3d;
+            color: #f0e0c9;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            background: #8c6b53;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        #convertBtn {
+            background: #9c7c5d;
+        }
+        
+        #convertBtn:hover {
+            background: #c9a87d;
+        }
+        
+        .camera-frame {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 15px solid #3a1c1c;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7), 0 10px 30px rgba(0, 0, 0, 0.8);
+            margin-bottom: 30px;
+        }
+        
+        .camera-lens {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #2c3e50 0%, #1a1a1a 70%);
+            border: 2px solid #5d5d5d;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        
+        .viewfinder {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            width: 25px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #5d5d5d;
+            border-radius: 3px;
+        }
+        
+        .camera-top {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 15px;
+            background: #2a1a12;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .preview-container {
+            width: 100%;
+            height: 300px;
+            background: #2a1a12;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #previewImage, #resultImage {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+        
+        .placeholder-text {
+            color: #6d4c3d;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .result-container {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .result-frame {
+            display: inline-block;
+            position: relative;
+            margin-top: 20px;
+            border: 10px solid #2a1a12;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        
+        .result-frame::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.7) 100%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" stroke="rgba(100,70,50,0.3)" stroke-width="0.5" x="0" y="0" width="100" height="100"/></svg>');
+            background-size: cover, 5px 5px;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+        
+        .download-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #8c6b53;
+            border-top: 1px solid #6d4c3d;
+            padding-top: 20px;
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Vintage Camera Converter</h1>
+            <p class="tagline">Transform your photos into nostalgic masterpieces</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="upload-section">
+                <h2 class="section-title">Upload Your Photo</h2>
+                
+                <div class="upload-area" id="dropArea">
+                    <div class="upload-icon">📷</div>
+                    <h3>Drag & Drop your image here</h3>
+                    <p>or</p>
+                    <button id="browseBtn">Browse Files</button>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*">
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="sepiaSlider">Sepia Intensity: <span id="sepiaValue">70%</span></label>
+                        <input type="range" id="sepiaSlider" class="slider" min="0" max="100" value="70">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="grainSlider">Film Grain: <span id="grainValue">50%</span></label>
+                        <input type="range" id="grainSlider" class="slider" min="0" max="100" value="50">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="vignetteSlider">Vignette: <span id="vignetteValue">80%</span></label>
+                        <input type="range" id="vignetteSlider" class="slider" min="0" max="100" value="80">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="contrastSlider">Contrast: <span id="contrastValue">120%</span></label>
+                        <input type="range" id="contrastSlider" class="slider" min="80" max="150" value="120">
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button id="convertBtn">Apply Vintage Effect</button>
+                    <button id="resetBtn">Reset Image</button>
+                </div>
+            </div>
+            
+            <div class="preview-section">
+                <h2 class="section-title">Preview</h2>
+                
+                <div class="camera-frame">
+                    <div class="camera-lens"></div>
+                    <div class="viewfinder"></div>
+                    <div class="camera-top"></div>
+                    
+                    <div class="preview-container">
+                        <img id="previewImage" alt="Preview">
+                        <img id="resultImage" alt="Result">
+                        <p class="placeholder-text" id="previewPlaceholder">Your image will appear here</p>
+                    </div>
+                </div>
+                
+                <div class="result-container">
+                    <div class="result-frame">
+                        <img id="finalResult" alt="Final Result" style="display: none;">
+                    </div>
+                    
+                    <div class="download-section">
+                        <button id="downloadBtn" style="display: none;">Download Vintage Photo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 Vintage Camera Converter | Create timeless memories with classic photography effects</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const dropArea = document.getElementById('dropArea');
+            const previewImage = document.getElementById('previewImage');
+            const resultImage = document.getElementById('resultImage');
+            const finalResult = document.getElementById('finalResult');
+            const previewPlaceholder = document.getElementById('previewPlaceholder');
+            const convertBtn = document.getElementById('convertBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Sliders
+            const sepiaSlider = document.getElementById('sepiaSlider');
+            const grainSlider = document.getElementById('grainSlider');
+            const vignetteSlider = document.getElementById('vignetteSlider');
+            const contrastSlider = document.getElementById('contrastSlider');
+            
+            // Slider value displays
+            const sepiaValue = document.getElementById('sepiaValue');
+            const grainValue = document.getElementById('grainValue');
+            const vignetteValue = document.getElementById('vignetteValue');
+            const contrastValue = document.getElementById('contrastValue');
+            
+            // Event listeners for sliders
+            sepiaSlider.addEventListener('input', () => {
+                sepiaValue.textContent = sepiaSlider.value + '%';
+            });
+            
+            grainSlider.addEventListener('input', () => {
+                grainValue.textContent = grainSlider.value + '%';
+            });
+            
+            vignetteSlider.addEventListener('input', () => {
+                vignetteValue.textContent = vignetteSlider.value + '%';
+            });
+            
+            contrastSlider.addEventListener('input', () => {
+                contrastValue.textContent = contrastSlider.value + '%';
+            });
+            
+            // File input handling
+            browseBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Drag and drop handling
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.style.borderColor = '#d4b483';
+                dropArea.style.backgroundColor = 'rgba(60, 40, 25, 0.7)';
+            });
+            
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.style.borderColor = '#6d4c3d';
+                dropArea.style.backgroundColor = 'rgba(45, 30, 20, 0.5)';
+            });
+            
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.style.borderColor = '#6d4c3d';
+                dropArea.style.backgroundColor = 'rgba(45, 30, 20, 0.5)';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelect(e);
+                }
+            });
+            
+            // File selection handler
+            function handleFileSelect(e) {
+                const file = fileInput.files[0];
+                if (!file || !file.type.match('image.*')) {
+                    alert('Please select a valid image file (JPEG, PNG, etc.)');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                    previewPlaceholder.style.display = 'none';
+                    resultImage.style.display = 'none';
+                    downloadBtn.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            // Convert button handler
+            convertBtn.addEventListener('click', applyVintageEffect);
+            
+            // Reset button handler
+            resetBtn.addEventListener('click', () => {
+                if (previewImage.src) {
+                    resultImage.style.display = 'none';
+                    previewImage.style.display = 'block';
+                    finalResult.style.display = 'none';
+                    downloadBtn.style.display = 'none';
+                }
+            });
+            
+            // Apply vintage effect
+            function applyVintageEffect() {
+                if (!previewImage.src) {
+                    alert('Please upload an image first');
+                    return;
+                }
+                
+                // Hide preview, show processing
+                previewImage.style.display = 'none';
+                previewPlaceholder.textContent = 'Applying vintage effect...';
+                previewPlaceholder.style.display = 'block';
+                
+                // Use timeout to allow DOM update before heavy processing
+                setTimeout(() => {
+                    // Create a canvas to manipulate the image
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Set canvas dimensions to match the image
+                    canvas.width = previewImage.width;
+                    canvas.height = previewImage.height;
+                    
+                    // Draw the image on the canvas
+                    ctx.drawImage(previewImage, 0, 0);
+                    
+                    // Get image data
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    // Get effect values
+                    const sepiaIntensity = parseInt(sepiaSlider.value) / 100;
+                    const grainIntensity = parseInt(grainSlider.value) / 200;
+                    const vignetteIntensity = parseInt(vignetteSlider.value) / 100;
+                    const contrastValue = parseInt(contrastSlider.value) / 100;
+                    
+                    // Apply effects to each pixel
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        
+                        // Apply sepia effect
+                        const newR = Math.min(255, (r * (1 - (0.607 * sepiaIntensity)) + 
+                                            (g * (0.769 * sepiaIntensity)) + 
+                                            (b * (0.189 * sepiaIntensity)));
+                        const newG = Math.min(255, (r * (0.349 * sepiaIntensity)) + 
+                                            (g * (1 - (0.314 * sepiaIntensity))) + 
+                                            (b * (0.168 * sepiaIntensity));
+                        const newB = Math.min(255, (r * (0.272 * sepiaIntensity)) + 
+                                            (g * (0.534 * sepiaIntensity)) + 
+                                            (b * (1 - (0.869 * sepiaIntensity))));
+                        
+                        // Apply contrast
+                        const contrastFactor = (259 * (contrastValue * 2 - 1) + 255) / (255 * (259 - (259 * (contrastValue * 2 - 1))));
+                        let contrastR = contrastFactor * (newR - 128) + 128;
+                        let contrastG = contrastFactor * (newG - 128) + 128;
+                        let contrastB = contrastFactor * (newB - 128) + 128;
+                        
+                        // Clamp values
+                        contrastR = Math.min(255, Math.max(0, contrastR));
+                        contrastG = Math.min(255, Math.max(0, contrastG));
+                        contrastB = Math.min(255, Math.max(0, contrastB));
+                        
+                        // Apply film grain
+                        const grain = (Math.random() - 0.5) * 100 * grainIntensity;
+                        const grainR = Math.min(255, Math.max(0, contrastR + grain));
+                        const grainG = Math.min(255, Math.max(0, contrastG + grain));
+                        const grainB = Math.min(255, Math.max(0, contrastB + grain));
+                        
+                        // Apply vignette effect
+                        const x = (i / 4) % canvas.width;
+                        const y = Math.floor((i / 4) / canvas.width);
+                        const centerX = canvas.width / 2;
+                        const centerY = canvas.height / 2;
+                        const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+                        const maxDistance = Math.sqrt(Math.pow(centerX, 2) + Math.pow(centerY, 2));
+                        const vignette = 1 - (distance / maxDistance) * vignetteIntensity;
+                        
+                        data[i] = grainR * vignette;
+                        data[i + 1] = grainG * vignette;
+                        data[i + 2] = grainB * vignette;
+                    }
+                    
+                    // Put the modified image data back on the canvas
+                    ctx.putImageData(imageData, 0, 0);
+                    
+                    // Convert canvas to image
+                    resultImage.src = canvas.toDataURL('image/jpeg');
+                    resultImage.style.display = 'block';
+                    previewPlaceholder.style.display = 'none';
+                    
+                    // Set final result for download
+                    finalResult.src = resultImage.src;
+                    finalResult.style.display = 'block';
+                    downloadBtn.style.display = 'block';
+                    
+                    // Clean up
+                    canvas.remove();
+                }, 100);
+            }
+            
+            // Download button handler
+            downloadBtn.addEventListener('click', () => {
+                if (!finalResult.src) return;
+                
+                const link = document.createElement('a');
+                link.download = 'vintage-photo.jpg';
+                link.href = finalResult.src;
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html>
